@@ -3,12 +3,13 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from google.cloud.firestore_v1 import Increment
 
 from ..deps import get_current_user
 from ..firestore import get_db
+from ..services.governance import moderate_review
 
 router = APIRouter()
 log = logging.getLogger("stadiumbite.reviews")
@@ -24,8 +25,30 @@ class ReviewSubmission(BaseModel):
     feedback: Optional[str] = None
 
 
+async def _run_moderation(review_id: str, feedback: str | None):
+    """Background task: run ADK moderation agent and update review doc."""
+    try:
+        verdict = await moderate_review(feedback)
+        db = get_db()
+        status = "approved" if (verdict["safe"] and verdict["on_topic"]) else "flagged"
+        db.collection("reviews").document(review_id).update({
+            "moderation": {
+                "status": status,
+                "reason": verdict.get("reason"),
+                "checkedAt": datetime.now(timezone.utc),
+            }
+        })
+        log.info("Review %s moderation: %s (%s)", review_id, status, verdict.get("reason", ""))
+    except Exception as e:
+        log.warning("Background moderation failed for %s: %s", review_id, e)
+
+
 @router.post("")
-async def submit_review(body: ReviewSubmission, user: dict = Depends(get_current_user)):
+async def submit_review(
+    body: ReviewSubmission,
+    background_tasks: BackgroundTasks,
+    user: dict = Depends(get_current_user),
+):
     if not body.foodIds:
         raise HTTPException(400, "Must select at least one food")
     if body.overallRating < 1 or body.overallRating > 5:
@@ -52,7 +75,7 @@ async def submit_review(body: ReviewSubmission, user: dict = Depends(get_current
         "feedback": body.feedback,
         "createdAt": datetime.now(timezone.utc),
         "moderation": {
-            "status": "approved",  # no governance for MVP
+            "status": "pending",  # will be updated by background moderation
             "reason": None,
             "checkedAt": None,
         },
@@ -85,6 +108,9 @@ async def submit_review(body: ReviewSubmission, user: dict = Depends(get_current
 
     transaction = db.transaction()
     create_review(transaction)
+
+    # Run AI moderation in background (non-blocking)
+    background_tasks.add_task(_run_moderation, review_ref.id, body.feedback)
 
     log.info("Review %s created by %s for %s", review_ref.id, user["phone"], body.foodIds)
     return {"ok": True, "reviewId": review_ref.id}

@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     gcp_project: str = "prototype-anuj"
     firestore_database: str = "(default)"
 
+    gemini_location: str = "us-central1"
+    gemini_model: str = "gemini-2.5-flash"
+    governance_enabled: bool = True
+
     cors_origins: list[str] = [
         "http://localhost:5173",
         "http://localhost:8080",
