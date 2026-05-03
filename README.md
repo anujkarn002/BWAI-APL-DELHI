@@ -4,6 +4,14 @@ Live food-rating PWA for stadium events. Fans snap photos, rate food, and watch 
 
 Built for **Build With AI :: Agentic Premier League** (Delhi, 3 May 2026), Problem Statement #4.
 
+## Demo
+
+### AI Food Classification
+
+[![AI Classification Demo](https://cdn.loom.com/sessions/thumbnails/10576b037949403798c5486ee1fa7b74-with-play.gif)](https://www.loom.com/share/10576b037949403798c5486ee1fa7b74)
+
+---
+
 ## What It Does
 
 A fan opens the app on their phone, logs in with OTP, takes a photo of their food (or picks from the catalog), rates it, and submits. Within seconds, every other device in the stadium sees the leaderboard shift. Gemini AI runs in the background — moderating reviews for safety and classifying food from photos.
