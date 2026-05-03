@@ -20,7 +20,10 @@ interface ClassifyResult {
   identified_food: string
   confidence: number
   catalog_matches: { slug: string; confidence: number }[]
+  auto_matches: { slug: string; confidence: number }[]
+  suggested_matches: { slug: string; confidence: number }[]
   description: string
+  quality: string
 }
 
 type Step = 'photo' | 'pick' | 'rate' | 'feedback' | 'submitting'
@@ -92,14 +95,10 @@ function ReviewFlow() {
     api.post<ClassifyResult>('/api/classify', { photoBase64: b64 })
       .then((result) => {
         setClassifyResult(result)
-        // Auto-select matched catalog items
-        if (result.catalog_matches?.length) {
-          const matchSlugs = result.catalog_matches
-            .filter((m) => m.confidence >= 0.5)
-            .map((m) => m.slug)
-          if (matchSlugs.length) {
-            setSelectedFoods((prev) => [...new Set([...prev, ...matchSlugs])])
-          }
+        // Only auto-select high-confidence matches
+        if (result.auto_matches?.length) {
+          const autoSlugs = result.auto_matches.map((m) => m.slug)
+          setSelectedFoods((prev) => [...new Set([...prev, ...autoSlugs])])
         }
       })
       .catch(() => { /* classification is best-effort */ })
@@ -184,17 +183,51 @@ function ReviewFlow() {
               <p className="text-sm font-bold">AI is identifying your food...</p>
             </div>
           )}
-          {classifyResult && !classifying && (
-            <div className={`border-2 px-4 py-3 ${classifyResult.is_food ? 'border-green-600 bg-green-50 dark:bg-green-950/30' : 'border-orange-500 bg-orange-50 dark:bg-orange-950/30'}`}>
-              <p className="text-sm font-bold">
-                {classifyResult.is_food
-                  ? `AI detected: ${classifyResult.identified_food}`
-                  : 'AI could not identify food in this image'}
+          {classifyResult && !classifying && !classifyResult.is_food && (
+            <div className="border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/30 px-4 py-3">
+              <p className="text-sm font-bold text-orange-700 dark:text-orange-400">
+                This doesn't look like food — please select items manually below
               </p>
-              {classifyResult.catalog_matches?.length > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Matched: {classifyResult.catalog_matches.map((m) => m.slug).join(', ')}
-                  {' '}&mdash; auto-selected below
+            </div>
+          )}
+          {classifyResult && !classifying && classifyResult.is_food && classifyResult.quality === 'poor' && (
+            <div className="border-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/30 px-4 py-3">
+              <p className="text-sm font-bold text-yellow-700 dark:text-yellow-400">
+                Image quality is low — AI result may be inaccurate. Please verify your selection.
+              </p>
+            </div>
+          )}
+          {classifyResult && !classifying && classifyResult.is_food && (
+            <div className="border-2 border-green-600 bg-green-50 dark:bg-green-950/30 px-4 py-3 space-y-1">
+              <p className="text-sm font-bold text-green-800 dark:text-green-300">
+                AI detected: {classifyResult.identified_food}
+              </p>
+              {classifyResult.auto_matches?.length > 0 && (
+                <p className="text-xs text-green-700 dark:text-green-400">
+                  Auto-selected: {classifyResult.auto_matches.map((m) => m.slug).join(', ')}
+                </p>
+              )}
+              {classifyResult.suggested_matches?.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  <span className="text-xs text-muted-foreground">Maybe:</span>
+                  {classifyResult.suggested_matches.map((m) => (
+                    <button
+                      key={m.slug}
+                      onClick={() => toggleFood(m.slug)}
+                      className={`text-xs px-2 py-0.5 border-2 border-border font-bold transition-colors ${
+                        selectedFoods.includes(m.slug)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-card hover:bg-muted'
+                      }`}
+                    >
+                      {m.slug} ({Math.round(m.confidence * 100)}%)
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!classifyResult.auto_matches?.length && !classifyResult.suggested_matches?.length && (
+                <p className="text-xs text-muted-foreground">
+                  No catalog match found — please select manually below
                 </p>
               )}
             </div>

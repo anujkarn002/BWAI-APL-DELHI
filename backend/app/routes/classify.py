@@ -1,6 +1,5 @@
 """Food image classification route."""
 import logging
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -16,12 +15,20 @@ class ClassifyRequest(BaseModel):
     photoBase64: str  # data URI or raw base64
 
 
+class CatalogMatch(BaseModel):
+    slug: str
+    confidence: float
+
+
 class ClassifyResponse(BaseModel):
     is_food: bool
     identified_food: str
     confidence: float
-    catalog_matches: list[dict]  # [{slug, confidence}]
+    catalog_matches: list[CatalogMatch]
+    auto_matches: list[CatalogMatch]       # high confidence — auto-select
+    suggested_matches: list[CatalogMatch]   # medium confidence — show as suggestion
     description: str
+    quality: str  # "good" | "acceptable" | "poor"
 
 
 @router.post("", response_model=ClassifyResponse)
@@ -42,7 +49,10 @@ async def classify_food(
             identified_food=result.get("identified_food", "Unknown"),
             confidence=result.get("confidence", 0),
             catalog_matches=result.get("catalog_matches", []),
+            auto_matches=result.get("auto_matches", []),
+            suggested_matches=result.get("suggested_matches", []),
             description=result.get("description", ""),
+            quality=result.get("quality", "unknown"),
         )
     except Exception as e:
         log.error("Classification failed: %s", e)

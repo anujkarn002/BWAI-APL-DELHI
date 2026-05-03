@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from .config import settings
-from .routes import auth, foods, reviews, leaderboard, sse, feed, classify
+from .routes import auth, foods, reviews, leaderboard, sse, feed, classify, admin
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("stadiumbite")
@@ -35,6 +35,7 @@ app.include_router(leaderboard.router, prefix="/api/leaderboard", tags=["leaderb
 app.include_router(sse.router, prefix="/sse", tags=["sse"])
 app.include_router(feed.router, prefix="/api/feed", tags=["feed"])
 app.include_router(classify.router, prefix="/api/classify", tags=["classify"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 # SPA static mount (production build only: /app/static produced by Dockerfile)
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
