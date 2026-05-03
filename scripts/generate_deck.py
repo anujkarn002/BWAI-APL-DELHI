@@ -27,7 +27,7 @@ OUT = Path(__file__).resolve().parent.parent / "docs" / "stadiumbite-deck.pptx"
 
 brand = BrandConfig.load("stadiumbite")
 registry = TemplateRegistry()
-template = registry.get("executive")
+template = registry.get("minimal")
 
 slides = [
     # ── 1. COVER ──────────────────────────────────────────────

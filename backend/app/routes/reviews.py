@@ -105,16 +105,19 @@ async def submit_review(
 
     @firestore.transactional
     def create_review(transaction):
-        transaction.set(review_ref, review_data)
-
-        # Update each food's aggregates
+        # ── All reads FIRST (Firestore requires reads before writes) ──
+        food_snapshots = {}
         for food_id in body.foodIds:
             food_ref = db.collection("foods").document(food_id)
-            rating = body.itemRatings.get(food_id, body.overallRating)
             food_doc = food_ref.get(transaction=transaction)
-            if not food_doc.exists:
-                continue
-            fd = food_doc.to_dict()
+            if food_doc.exists:
+                food_snapshots[food_id] = (food_ref, food_doc.to_dict())
+
+        # ── All writes AFTER reads ──
+        transaction.set(review_ref, review_data)
+
+        for food_id, (food_ref, fd) in food_snapshots.items():
+            rating = body.itemRatings.get(food_id, body.overallRating)
             new_count = fd.get("reviewCount", 0) + 1
             new_sum = fd.get("ratingSum", 0) + rating
             new_avg = new_sum / new_count
