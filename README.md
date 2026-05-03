@@ -8,7 +8,7 @@ Built for **Build With AI :: Agentic Premier League** (Delhi, 3 May 2026), Probl
 
 ### AI Food Classification
 
-[![AI Classification Demo](https://cdn.loom.com/sessions/thumbnails/10576b037949403798c5486ee1fa7b74-with-play.gif)](https://www.loom.com/share/10576b037949403798c5486ee1fa7b74)
+[▶️ Watch the demo on Loom](https://www.loom.com/share/10576b037949403798c5486ee1fa7b74)
 
 ---
 
