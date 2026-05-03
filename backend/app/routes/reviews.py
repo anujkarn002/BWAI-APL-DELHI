@@ -5,6 +5,7 @@ from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
+from google.cloud import firestore
 from google.cloud.firestore_v1 import Increment
 
 from ..deps import get_current_user
@@ -102,7 +103,7 @@ async def submit_review(
         },
     }
 
-    @db.transactional
+    @firestore.transactional
     def create_review(transaction):
         transaction.set(review_ref, review_data)
 
