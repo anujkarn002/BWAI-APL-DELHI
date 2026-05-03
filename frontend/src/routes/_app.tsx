@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useNavigate, useMatches } from '@tanstack/react-router'
 import { useAuthStore } from '@/lib/auth-store'
 import { useEffect } from 'react'
-import { Home, PenLine, LayoutGrid, Trophy, LogOut } from 'lucide-react'
+import { Home, PenLine, LayoutGrid, Trophy, LogOut, ClipboardList } from 'lucide-react'
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: () => {
@@ -32,6 +32,7 @@ function RedirectToLogin() {
 const NAV_ITEMS = [
   { to: '/home' as const, label: 'Home', Icon: Home },
   { to: '/review' as const, label: 'Rate', Icon: PenLine },
+  { to: '/my-reviews' as const, label: 'Mine', Icon: ClipboardList },
   { to: '/feed' as const, label: 'Feed', Icon: LayoutGrid },
   { to: '/leaderboard' as const, label: 'Board', Icon: Trophy },
 ]

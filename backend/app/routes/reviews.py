@@ -143,3 +143,137 @@ async def submit_review(
 
     log.info("Review %s created by %s for %s", review_ref.id, user["phone"], body.foodIds)
     return {"ok": True, "reviewId": review_ref.id}
+
+
+# ── User's own reviews ──────────────────────────────────────
+
+@router.get("/mine")
+async def my_reviews(user: dict = Depends(get_current_user)):
+    """Return the current user's reviews, newest first."""
+    db = get_db()
+    # Simple filter — sort client-side to avoid composite index requirement
+    docs = (
+        db.collection("reviews")
+        .where("userId", "==", user["phone"])
+        .limit(50)
+        .stream()
+    )
+    reviews = []
+    for doc in docs:
+        d = doc.to_dict()
+        d["id"] = doc.id
+        # Don't send full base64 photo in list — just a flag
+        d["hasPhoto"] = bool(d.get("photoBase64"))
+        d.pop("photoBase64", None)
+        reviews.append(d)
+    # Sort newest first client-side
+    reviews.sort(key=lambda r: r.get("createdAt", ""), reverse=True)
+    return reviews
+
+
+# ── Edit an existing review ─────────────────────────────────
+
+class ReviewUpdate(BaseModel):
+    itemRatings: Optional[dict[str, int]] = None
+    overallRating: Optional[int] = None
+    feedback: Optional[str] = None
+
+
+@router.put("/{review_id}")
+async def update_review(
+    review_id: str,
+    body: ReviewUpdate,
+    background_tasks: BackgroundTasks,
+    user: dict = Depends(get_current_user),
+):
+    """Edit ratings/feedback on an existing review. Only the author can edit."""
+    if body.overallRating is not None and not (1 <= body.overallRating <= 5):
+        raise HTTPException(400, "Overall rating must be 1-5")
+    if body.itemRatings:
+        for fid, rating in body.itemRatings.items():
+            if not (1 <= rating <= 5):
+                raise HTTPException(400, f"Rating for {fid} must be 1-5")
+
+    db = get_db()
+    review_ref = db.collection("reviews").document(review_id)
+
+    @firestore.transactional
+    def do_update(transaction):
+        # Read review
+        review_doc = review_ref.get(transaction=transaction)
+        if not review_doc.exists:
+            raise HTTPException(404, "Review not found")
+        old = review_doc.to_dict()
+
+        if old["userId"] != user["phone"]:
+            raise HTTPException(403, "You can only edit your own reviews")
+
+        # Read food docs that need aggregate updates
+        food_snapshots = {}
+        affected_food_ids = set()
+        if body.itemRatings:
+            affected_food_ids = set(old.get("itemRatings", {}).keys()) | set(body.itemRatings.keys())
+        for food_id in affected_food_ids:
+            ref = db.collection("foods").document(food_id)
+            doc = ref.get(transaction=transaction)
+            if doc.exists:
+                food_snapshots[food_id] = (ref, doc.to_dict())
+
+        # ── Writes ──
+        update_fields = {"updatedAt": datetime.now(timezone.utc)}
+
+        if body.itemRatings is not None:
+            # Reverse old ratings, apply new ones on food aggregates
+            old_ratings = old.get("itemRatings", {})
+            for food_id, (ref, fd) in food_snapshots.items():
+                old_r = old_ratings.get(food_id)
+                new_r = body.itemRatings.get(food_id)
+                count = fd.get("reviewCount", 0)
+                total = fd.get("ratingSum", 0)
+
+                if old_r and food_id not in body.itemRatings:
+                    # Food removed from review
+                    count = max(0, count - 1)
+                    total = max(0, total - old_r)
+                elif new_r and food_id not in old_ratings:
+                    # Food added to review
+                    count += 1
+                    total += new_r
+                elif old_r and new_r and old_r != new_r:
+                    # Rating changed
+                    total = total - old_r + new_r
+
+                avg = round(total / count, 2) if count > 0 else 0
+                transaction.update(ref, {
+                    "reviewCount": count,
+                    "ratingSum": total,
+                    "ratingAvg": avg,
+                })
+
+            update_fields["itemRatings"] = body.itemRatings
+            update_fields["foodIds"] = list(body.itemRatings.keys())
+
+        if body.overallRating is not None:
+            update_fields["overallRating"] = body.overallRating
+
+        if body.feedback is not None:
+            update_fields["feedback"] = body.feedback
+            # Re-run moderation on changed feedback
+            update_fields["moderation"] = {
+                "status": "pending",
+                "reason": None,
+                "checkedAt": None,
+            }
+
+        transaction.update(review_ref, update_fields)
+        return update_fields
+
+    transaction = db.transaction()
+    result = do_update(transaction)
+
+    # Re-moderate if feedback changed
+    if body.feedback is not None:
+        background_tasks.add_task(_run_moderation, review_id, body.feedback)
+
+    log.info("Review %s updated by %s", review_id, user["phone"])
+    return {"ok": True, "reviewId": review_id}
