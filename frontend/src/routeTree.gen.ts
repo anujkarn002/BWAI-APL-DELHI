@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppReviewRouteImport } from './routes/_app/review'
 import { Route as AppLeaderboardRouteImport } from './routes/_app/leaderboard'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
+import { Route as AppFeedRouteImport } from './routes/_app/feed'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -45,10 +46,16 @@ const AppHomeRoute = AppHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/feed': typeof AppFeedRoute
   '/home': typeof AppHomeRoute
   '/leaderboard': typeof AppLeaderboardRoute
   '/review': typeof AppReviewRoute
@@ -56,6 +63,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/feed': typeof AppFeedRoute
   '/home': typeof AppHomeRoute
   '/leaderboard': typeof AppLeaderboardRoute
   '/review': typeof AppReviewRoute
@@ -65,20 +73,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/feed': typeof AppFeedRoute
   '/_app/home': typeof AppHomeRoute
   '/_app/leaderboard': typeof AppLeaderboardRoute
   '/_app/review': typeof AppReviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/home' | '/leaderboard' | '/review'
+  fullPaths: '/' | '/login' | '/feed' | '/home' | '/leaderboard' | '/review'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/home' | '/leaderboard' | '/review'
+  to: '/' | '/login' | '/feed' | '/home' | '/leaderboard' | '/review'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/login'
+    | '/_app/feed'
     | '/_app/home'
     | '/_app/leaderboard'
     | '/_app/review'
@@ -134,16 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHomeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/feed': {
+      id: '/_app/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppFeedRoute: typeof AppFeedRoute
   AppHomeRoute: typeof AppHomeRoute
   AppLeaderboardRoute: typeof AppLeaderboardRoute
   AppReviewRoute: typeof AppReviewRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppFeedRoute: AppFeedRoute,
   AppHomeRoute: AppHomeRoute,
   AppLeaderboardRoute: AppLeaderboardRoute,
   AppReviewRoute: AppReviewRoute,

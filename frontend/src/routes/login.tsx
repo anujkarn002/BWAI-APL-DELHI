@@ -50,72 +50,82 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary">🏟️ StadiumBite</h1>
-          <p className="text-muted-foreground mt-1">Sign in to rate food</p>
+    <div className="min-h-screen bg-background flex items-center justify-center px-6">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-black">
+            Stadium<span className="text-primary">Bite</span>
+          </h1>
+          <p className="text-muted-foreground mt-2 font-medium">Sign in to rate food</p>
         </div>
 
-        {step === 'phone' ? (
-          <form onSubmit={handleRequestOtp} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Phone Number</label>
-              <div className="flex gap-2">
-                <span className="bg-card border border-border rounded-md px-3 py-2 text-sm">+91</span>
+        <div className="border-3 border-border bg-card p-6 shadow-lg">
+          {step === 'phone' ? (
+            <form onSubmit={handleRequestOtp} className="space-y-5">
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wide mb-2">Phone Number</label>
+                <div className="flex gap-2">
+                  <span className="bg-muted border-2 border-border px-3 py-2.5 text-sm font-mono font-bold">+91</span>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="9876543210"
+                    className="flex-1 bg-background border-2 border-border px-3 py-2.5 font-mono text-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                    maxLength={10}
+                    required
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={loading || phone.replace(/\D/g, '').length !== 10}
+                className="w-full bg-primary text-primary-foreground border-2 border-border py-3 font-bold uppercase tracking-wide shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all disabled:opacity-50 disabled:hover:translate-y-0"
+              >
+                {loading ? 'Sending...' : 'Send OTP'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-5">
+              <div>
+                <label className="block text-sm font-bold uppercase tracking-wide mb-2">Enter OTP</label>
                 <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="9876543210"
-                  className="flex-1 bg-card border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  maxLength={10}
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="000000"
+                  className="w-full bg-background border-2 border-border px-3 py-3 font-mono text-2xl text-center tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                  maxLength={6}
+                  autoFocus
                   required
                 />
+                <div className="mt-2 bg-secondary border-2 border-border px-3 py-1.5 inline-block shadow-sm">
+                  <p className="text-xs font-mono font-bold">DEMO OTP: 999999</p>
+                </div>
               </div>
-            </div>
-            <button
-              type="submit"
-              disabled={loading || phone.replace(/\D/g, '').length !== 10}
-              className="w-full bg-primary text-primary-foreground py-2.5 rounded-md font-semibold disabled:opacity-50"
-            >
-              {loading ? 'Sending...' : 'Send OTP'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Enter OTP</label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="6-digit OTP"
-                className="w-full bg-card border border-border rounded-md px-3 py-2 text-sm text-center tracking-widest text-lg focus:outline-none focus:ring-2 focus:ring-ring"
-                maxLength={6}
-                autoFocus
-                required
-              />
-              <p className="text-xs text-muted-foreground mt-1">Demo OTP: 999999</p>
-            </div>
-            <button
-              type="submit"
-              disabled={loading || otp.length !== 6}
-              className="w-full bg-primary text-primary-foreground py-2.5 rounded-md font-semibold disabled:opacity-50"
-            >
-              {loading ? 'Verifying...' : 'Verify & Login'}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setStep('phone'); setOtp(''); setError('') }}
-              className="w-full text-sm text-muted-foreground hover:text-foreground"
-            >
-              ← Change number
-            </button>
-          </form>
-        )}
+              <button
+                type="submit"
+                disabled={loading || otp.length !== 6}
+                className="w-full bg-primary text-primary-foreground border-2 border-border py-3 font-bold uppercase tracking-wide shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all disabled:opacity-50"
+              >
+                {loading ? 'Verifying...' : 'Verify & Login'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setStep('phone'); setOtp(''); setError('') }}
+                className="w-full border-2 border-border py-2 text-sm font-bold hover:bg-muted transition-colors"
+              >
+                &larr; Change Number
+              </button>
+            </form>
+          )}
 
-        {error && <p className="text-destructive text-sm text-center">{error}</p>}
+          {error && (
+            <div className="mt-4 bg-primary/10 border-2 border-primary px-3 py-2">
+              <p className="text-primary text-sm font-bold">{error}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

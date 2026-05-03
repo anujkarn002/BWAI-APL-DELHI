@@ -1,5 +1,13 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createRootRoute({
-  component: () => <Outlet />,
+  component: RootLayout,
 })
+
+function RootLayout() {
+  return (
+    <div className="min-h-screen font-sans">
+      <Outlet />
+    </div>
+  )
+}
