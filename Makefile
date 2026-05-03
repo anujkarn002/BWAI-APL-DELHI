@@ -1,4 +1,7 @@
-JWT_SECRET := REDACTED_ROTATE_THIS_SECRET
+# JWT_SECRET is loaded from backend/.env (never hardcode secrets in Makefile).
+# Generate one with: openssl rand -hex 32
+include backend/.env
+export
 
 .PHONY: dev-backend dev-frontend test seed seed-reviews deploy deploy-quiet logs url build
 

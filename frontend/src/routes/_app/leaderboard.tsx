@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { useSSE } from '@/lib/sse'
+import { Star, Crown } from 'lucide-react'
 
 export const Route = createFileRoute('/_app/leaderboard')({
   component: Leaderboard,
@@ -53,15 +54,13 @@ function Leaderboard() {
       {overall.length > 0 && (
         <div className="border-3 border-border bg-secondary text-secondary-foreground p-6 shadow-lg mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-primary text-primary-foreground border-2 border-border flex items-center justify-center font-mono font-bold">
-              1
-            </div>
+            <Crown size={20} className="text-primary" />
             <span className="text-xs font-bold uppercase tracking-wider">#1 Overall</span>
           </div>
           <h2 className="text-3xl font-black mb-1">{overall[0].name}</h2>
           <div className="flex items-baseline gap-2">
             <span className="text-5xl font-black font-mono">{overall[0].ratingAvg.toFixed(1)}</span>
-            <span className="text-2xl text-primary">{'\u2605'}</span>
+            <Star size={24} className="text-primary fill-primary" />
           </div>
           <p className="text-sm font-mono mt-1">
             {overall[0].stallName} &middot; {overall[0].reviewCount} reviews
@@ -90,7 +89,7 @@ function Leaderboard() {
               </div>
               <div className="text-right font-mono">
                 <span className="font-bold">{food.ratingAvg.toFixed(1)}</span>
-                <span className="text-primary ml-0.5">{'\u2605'}</span>
+                <Star size={12} className="text-primary fill-primary inline ml-0.5" />
                 <p className="text-[10px] text-muted-foreground">{food.reviewCount} rev</p>
               </div>
             </div>
@@ -109,7 +108,10 @@ function Leaderboard() {
               <div key={food.id} className="px-4 py-2.5 flex items-center gap-3">
                 <span className="font-mono font-bold text-muted-foreground text-sm w-5">{i + 1}</span>
                 <span className="flex-1 font-bold text-sm truncate">{food.name}</span>
-                <span className="font-mono font-bold">{food.ratingAvg.toFixed(1)}<span className="text-primary">{'\u2605'}</span></span>
+                <span className="font-mono font-bold flex items-center gap-0.5">
+                  {food.ratingAvg.toFixed(1)}
+                  <Star size={12} className="text-primary fill-primary" />
+                </span>
               </div>
             ))}
           </div>

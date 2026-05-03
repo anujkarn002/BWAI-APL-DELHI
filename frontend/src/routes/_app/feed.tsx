@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { useState, useRef, useEffect } from 'react'
+import { Star, RefreshCw } from 'lucide-react'
 
 export const Route = createFileRoute('/_app/feed')({
   component: Feed,
@@ -34,12 +35,11 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((s) => (
-        <span
+        <Star
           key={s}
-          className={`text-sm ${s <= rating ? 'text-primary' : 'text-muted-foreground/30'}`}
-        >
-          {'\u2605'}
-        </span>
+          size={14}
+          className={s <= rating ? 'text-primary fill-primary' : 'text-muted-foreground/30'}
+        />
       ))}
     </div>
   )
@@ -91,7 +91,7 @@ function FeedCard({ item, index }: { item: FeedItem; index: number }) {
           {/* Overlay rating badge */}
           <div className="absolute top-3 right-3 bg-card/90 border-2 border-border px-2 py-1 shadow-md backdrop-blur-sm">
             <span className="font-mono font-bold text-sm">{item.overallRating}</span>
-            <span className="text-primary ml-0.5">{'\u2605'}</span>
+            <Star size={12} className="text-primary fill-primary inline ml-0.5" />
           </div>
         </div>
       )}
@@ -216,6 +216,7 @@ function Feed() {
             isRefetching ? 'bg-muted text-muted-foreground' : 'hover:bg-primary hover:text-primary-foreground'
           }`}
         >
+          <RefreshCw size={12} className={isRefetching ? 'animate-spin' : ''} />
           {isRefetching ? 'Loading...' : 'Refresh'}
         </button>
       </div>

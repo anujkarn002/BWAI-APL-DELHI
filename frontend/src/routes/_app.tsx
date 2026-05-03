@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, Link, useNavigate, useMatches } from '@tanstack/react-router'
 import { useAuthStore } from '@/lib/auth-store'
 import { useEffect } from 'react'
+import { Home, PenLine, LayoutGrid, Trophy, LogOut } from 'lucide-react'
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: () => {
@@ -29,10 +30,10 @@ function RedirectToLogin() {
 }
 
 const NAV_ITEMS = [
-  { to: '/home' as const, label: 'Home', icon: '\u2302' },
-  { to: '/review' as const, label: 'Rate', icon: '\u270E' },
-  { to: '/feed' as const, label: 'Feed', icon: '\u25A3' },
-  { to: '/leaderboard' as const, label: 'Board', icon: '\u2605' },
+  { to: '/home' as const, label: 'Home', Icon: Home },
+  { to: '/review' as const, label: 'Rate', Icon: PenLine },
+  { to: '/feed' as const, label: 'Feed', Icon: LayoutGrid },
+  { to: '/leaderboard' as const, label: 'Board', Icon: Trophy },
 ]
 
 function AppLayout() {
@@ -49,7 +50,7 @@ function AppLayout() {
         logout()
         navigate({ to: '/login' })
       }
-    }, 30_000) // check every 30s
+    }, 30_000)
     return () => clearInterval(interval)
   }, [isValid, logout, navigate])
 
@@ -71,8 +72,9 @@ function AppLayout() {
           </div>
           <button
             onClick={handleLogout}
-            className="border-2 border-border px-2 py-0.5 text-xs font-bold uppercase hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="border-2 border-border px-2 py-1 text-xs font-bold uppercase hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer flex items-center gap-1"
           >
+            <LogOut size={12} />
             Logout
           </button>
         </div>
@@ -90,13 +92,13 @@ function AppLayout() {
             <Link
               key={item.to}
               to={item.to}
-              className={`flex-1 flex flex-col items-center py-3 gap-0.5 border-r-2 last:border-r-0 border-border transition-colors ${
+              className={`flex-1 flex flex-col items-center py-3 gap-1 border-r-2 last:border-r-0 border-border transition-colors ${
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'hover:bg-muted'
               }`}
             >
-              <span className="text-lg leading-none">{item.icon}</span>
+              <item.Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
               <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
             </Link>
           )

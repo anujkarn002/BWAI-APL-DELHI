@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/lib/auth-store'
+import { LayoutGrid, Trophy, Star, TrendingUp, Camera } from 'lucide-react'
 
 export const Route = createFileRoute('/_app/home')({
   component: Home,
@@ -36,25 +37,25 @@ function Home() {
       {/* CTA */}
       <Link
         to="/review"
-        className="block w-full bg-primary text-primary-foreground border-3 border-border text-center py-5 text-xl font-black uppercase tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all mb-6"
+        className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground border-3 border-border text-center py-5 text-xl font-black uppercase tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all mb-6"
       >
-        Rate Your Food &rarr;
+        <Camera size={24} /> Rate Your Food &rarr;
       </Link>
 
       {/* Quick links */}
       <div className="grid grid-cols-2 gap-3 mb-8">
         <Link
           to="/feed"
-          className="border-3 border-border bg-accent text-accent-foreground p-4 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+          className="border-3 border-border bg-accent text-accent-foreground p-4 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
         >
-          <span className="text-2xl block mb-1">{'\u25A3'}</span>
+          <LayoutGrid size={24} className="mb-1" />
           <span className="font-bold text-sm uppercase">Photo Feed</span>
         </Link>
         <Link
           to="/leaderboard"
-          className="border-3 border-border bg-secondary text-secondary-foreground p-4 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+          className="border-3 border-border bg-secondary text-secondary-foreground p-4 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
         >
-          <span className="text-2xl block mb-1">{'\u2605'}</span>
+          <Trophy size={24} className="mb-1" />
           <span className="font-bold text-sm uppercase">Leaderboard</span>
         </Link>
       </div>
@@ -62,7 +63,7 @@ function Home() {
       {/* Trending */}
       <div className="border-3 border-border bg-card shadow-md">
         <div className="border-b-2 border-border bg-muted px-4 py-2">
-          <h3 className="font-black uppercase text-sm tracking-wide">Trending Now</h3>
+          <h3 className="font-black uppercase text-sm tracking-wide flex items-center gap-2"><TrendingUp size={16} /> Trending Now</h3>
         </div>
         {topFoods.length === 0 ? (
           <p className="p-4 text-muted-foreground text-sm">No reviews yet. Be the first!</p>
@@ -81,7 +82,7 @@ function Home() {
                 </div>
                 <div className="text-right">
                   <span className="font-mono font-bold text-lg">{food.ratingAvg.toFixed(1)}</span>
-                  <span className="text-primary ml-0.5">{'\u2605'}</span>
+                  <Star size={14} className="text-primary fill-primary inline ml-0.5" />
                 </div>
               </div>
             ))}

@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, useRef, useCallback } from 'react'
 import { api } from '@/lib/api'
+import { Camera, Star, SkipForward } from 'lucide-react'
 
 export const Route = createFileRoute('/_app/review')({
   component: ReviewFlow,
@@ -153,16 +154,16 @@ function ReviewFlow() {
           />
           <button
             onClick={() => fileRef.current?.click()}
-            className="w-full border-3 border-dashed border-border bg-muted p-16 text-center hover:border-primary hover:bg-primary/5 transition-all group"
+            className="w-full border-3 border-dashed border-border bg-muted p-16 text-center hover:border-primary hover:bg-primary/5 transition-all group cursor-pointer"
           >
-            <span className="text-5xl block mb-3 group-hover:scale-110 transition-transform">{'\u{1F4F7}'}</span>
+            <Camera size={48} className="mx-auto mb-3 text-muted-foreground group-hover:text-primary group-hover:scale-110 transition-all" />
             <span className="font-bold uppercase text-sm">Tap to take photo</span>
           </button>
           <button
             onClick={() => setStep('pick')}
-            className="w-full border-2 border-border py-3 font-bold text-sm uppercase hover:bg-muted transition-colors"
+            className="w-full border-2 border-border py-3 font-bold text-sm uppercase hover:bg-muted transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
-            Skip photo &rarr;
+            <SkipForward size={14} /> Skip photo
           </button>
         </div>
       )}
@@ -365,13 +366,13 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
           key={star}
           type="button"
           onClick={() => onChange(star)}
-          className={`w-10 h-10 border-2 border-border text-lg font-bold transition-all ${
+          className={`w-10 h-10 border-2 border-border flex items-center justify-center transition-all cursor-pointer ${
             star <= value
               ? 'bg-primary text-primary-foreground shadow-sm -translate-y-0.5'
               : 'bg-muted hover:bg-muted/80'
           }`}
         >
-          {'\u2605'}
+          <Star size={18} className={star <= value ? 'fill-primary-foreground' : ''} />
         </button>
       ))}
     </div>
