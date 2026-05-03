@@ -10,6 +10,7 @@ from google.cloud.firestore_v1 import Increment
 from ..deps import get_current_user
 from ..firestore import get_db
 from ..services.governance import moderate_review
+from ..services.classifier import classify_image
 
 router = APIRouter()
 log = logging.getLogger("stadiumbite.reviews")
@@ -41,6 +42,26 @@ async def _run_moderation(review_id: str, feedback: str | None):
         log.info("Review %s moderation: %s (%s)", review_id, status, verdict.get("reason", ""))
     except Exception as e:
         log.warning("Background moderation failed for %s: %s", review_id, e)
+
+
+def _run_classification(review_id: str, photo_base64: str):
+    """Background task: classify food image and update review doc."""
+    try:
+        result = classify_image(photo_base64)
+        db = get_db()
+        db.collection("reviews").document(review_id).update({
+            "classification": {
+                "identified_food": result.get("identified_food"),
+                "confidence": result.get("confidence", 0),
+                "catalog_matches": result.get("catalog_matches", []),
+                "is_food": result.get("is_food", False),
+                "description": result.get("description", ""),
+                "classifiedAt": datetime.now(timezone.utc),
+            }
+        })
+        log.info("Review %s classified: %s", review_id, result.get("identified_food"))
+    except Exception as e:
+        log.warning("Background classification failed for %s: %s", review_id, e)
 
 
 @router.post("")
@@ -111,6 +132,10 @@ async def submit_review(
 
     # Run AI moderation in background (non-blocking)
     background_tasks.add_task(_run_moderation, review_ref.id, body.feedback)
+
+    # Run AI image classification in background (non-blocking)
+    if body.photoBase64:
+        background_tasks.add_task(_run_classification, review_ref.id, body.photoBase64)
 
     log.info("Review %s created by %s for %s", review_ref.id, user["phone"], body.foodIds)
     return {"ok": True, "reviewId": review_ref.id}

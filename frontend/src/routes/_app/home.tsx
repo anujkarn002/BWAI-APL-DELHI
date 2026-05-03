@@ -18,7 +18,6 @@ interface Food {
 
 function Home() {
   const phone = useAuthStore((s) => s.phone)
-  const logout = useAuthStore((s) => s.logout)
   const { data: foods } = useQuery({
     queryKey: ['foods'],
     queryFn: () => api.get<Food[]>('/api/foods'),
@@ -29,17 +28,9 @@ function Home() {
   return (
     <div className="p-4 max-w-lg mx-auto">
       {/* Welcome */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-black">Welcome back!</h2>
-          <p className="text-sm font-mono text-muted-foreground">{phone}</p>
-        </div>
-        <button
-          onClick={logout}
-          className="border-2 border-border px-3 py-1 text-xs font-bold uppercase hover:bg-muted transition-colors"
-        >
-          Logout
-        </button>
+      <div className="mb-6">
+        <h2 className="text-2xl font-black">Welcome back!</h2>
+        <p className="text-sm font-mono text-muted-foreground">{phone}</p>
       </div>
 
       {/* CTA */}

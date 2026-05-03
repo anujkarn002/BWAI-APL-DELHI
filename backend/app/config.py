@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     jwt_secret: str = "dev-secret-change-me"
     jwt_algorithm: str = "HS256"
-    jwt_ttl_seconds: int = 60 * 60 * 24 * 7
+    jwt_ttl_seconds: int = 60 * 60 * 24  # 1 day
 
     demo_master_otp: str = "999999"
 

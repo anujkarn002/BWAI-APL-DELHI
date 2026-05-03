@@ -11,14 +11,30 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = useAuthStore.getState().token
+  const store = useAuthStore.getState()
+
+  // Check token validity before making request
+  if (!store.isTokenValid() && !path.startsWith('/api/auth/')) {
+    store.logout()
+    window.location.href = '/login'
+    throw new ApiError(401, 'Token expired')
+  }
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(init?.headers as Record<string, string>),
   }
-  if (token) headers['Authorization'] = `Bearer ${token}`
+  if (store.token) headers['Authorization'] = `Bearer ${store.token}`
 
   const res = await fetch(`${BASE}${path}`, { ...init, headers })
+
+  if (res.status === 401) {
+    // Server rejected token — auto logout
+    store.logout()
+    window.location.href = '/login'
+    throw new ApiError(401, 'Session expired. Please login again.')
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }))
     throw new ApiError(res.status, body.detail || res.statusText)

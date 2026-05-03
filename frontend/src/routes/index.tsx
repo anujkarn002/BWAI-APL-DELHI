@@ -6,7 +6,9 @@ export const Route = createFileRoute('/')({
 })
 
 function Landing() {
-  const isLoggedIn = useAuthStore((s) => !!s.token)
+  const token = useAuthStore((s) => s.token)
+  const tokenExp = useAuthStore((s) => s.tokenExp)
+  const isLoggedIn = !!token && (!tokenExp || Date.now() < tokenExp)
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

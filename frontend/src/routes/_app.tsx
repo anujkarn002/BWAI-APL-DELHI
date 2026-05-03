@@ -1,20 +1,32 @@
 import { createFileRoute, Outlet, Link, useNavigate, useMatches } from '@tanstack/react-router'
 import { useAuthStore } from '@/lib/auth-store'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: () => {
-    const token = useAuthStore.getState().token
-    if (!token) {
+    const store = useAuthStore.getState()
+    if (!store.isTokenValid()) {
+      store.logout()
       throw new Error('Not authenticated')
     }
   },
-  errorComponent: () => {
-    const navigate = useNavigate()
-    navigate({ to: '/login' })
-    return null
-  },
+  errorComponent: RedirectToLogin,
   component: AppLayout,
 })
+
+function RedirectToLogin() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    navigate({ to: '/login' })
+  }, [navigate])
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="border-3 border-border bg-card p-6 shadow-lg text-center">
+        <p className="font-bold">Redirecting to login...</p>
+      </div>
+    </div>
+  )
+}
 
 const NAV_ITEMS = [
   { to: '/home' as const, label: 'Home', icon: '\u2302' },
@@ -25,7 +37,26 @@ const NAV_ITEMS = [
 
 function AppLayout() {
   const matches = useMatches()
+  const navigate = useNavigate()
+  const logout = useAuthStore((s) => s.logout)
+  const isValid = useAuthStore((s) => s.isTokenValid)
   const currentPath = matches[matches.length - 1]?.pathname || ''
+
+  // Periodic token validity check
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isValid()) {
+        logout()
+        navigate({ to: '/login' })
+      }
+    }, 30_000) // check every 30s
+    return () => clearInterval(interval)
+  }, [isValid, logout, navigate])
+
+  const handleLogout = () => {
+    logout()
+    navigate({ to: '/' })
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -34,8 +65,16 @@ function AppLayout() {
         <Link to="/home" className="text-xl font-black tracking-tight">
           Stadium<span className="text-primary">Bite</span>
         </Link>
-        <div className="bg-secondary border-2 border-border px-2 py-0.5 shadow-sm">
-          <span className="text-xs font-mono font-bold uppercase">Live</span>
+        <div className="flex items-center gap-3">
+          <div className="bg-secondary border-2 border-border px-2 py-0.5 shadow-sm">
+            <span className="text-xs font-mono font-bold uppercase">Live</span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="border-2 border-border px-2 py-0.5 text-xs font-bold uppercase hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            Logout
+          </button>
         </div>
       </header>
 

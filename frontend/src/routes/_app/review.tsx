@@ -15,6 +15,14 @@ interface Food {
   imageUrl: string
 }
 
+interface ClassifyResult {
+  is_food: boolean
+  identified_food: string
+  confidence: number
+  catalog_matches: { slug: string; confidence: number }[]
+  description: string
+}
+
 type Step = 'photo' | 'pick' | 'rate' | 'feedback' | 'submitting'
 
 function resizeImage(file: File, maxSize: number, quality: number): Promise<string> {
@@ -52,6 +60,8 @@ function ReviewFlow() {
   const [overallRating, setOverallRating] = useState(0)
   const [feedback, setFeedback] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
+  const [classifyResult, setClassifyResult] = useState<ClassifyResult | null>(null)
+  const [classifying, setClassifying] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const { data: foods = [] } = useQuery({
@@ -75,6 +85,25 @@ function ReviewFlow() {
     const b64 = await resizeImage(file, 800, 0.7)
     setPhotoBase64(b64)
     setStep('pick')
+
+    // Classify in background — don't block the user
+    setClassifying(true)
+    setClassifyResult(null)
+    api.post<ClassifyResult>('/api/classify', { photoBase64: b64 })
+      .then((result) => {
+        setClassifyResult(result)
+        // Auto-select matched catalog items
+        if (result.catalog_matches?.length) {
+          const matchSlugs = result.catalog_matches
+            .filter((m) => m.confidence >= 0.5)
+            .map((m) => m.slug)
+          if (matchSlugs.length) {
+            setSelectedFoods((prev) => [...new Set([...prev, ...matchSlugs])])
+          }
+        }
+      })
+      .catch(() => { /* classification is best-effort */ })
+      .finally(() => setClassifying(false))
   }, [])
 
   const toggleFood = (id: string) => {
@@ -147,6 +176,29 @@ function ReviewFlow() {
             </div>
           )}
           <h2 className="text-2xl font-black uppercase">What Did You Eat?</h2>
+
+          {/* AI classification result */}
+          {classifying && (
+            <div className="border-2 border-border bg-muted/50 px-4 py-3 flex items-center gap-3">
+              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm font-bold">AI is identifying your food...</p>
+            </div>
+          )}
+          {classifyResult && !classifying && (
+            <div className={`border-2 px-4 py-3 ${classifyResult.is_food ? 'border-green-600 bg-green-50 dark:bg-green-950/30' : 'border-orange-500 bg-orange-50 dark:bg-orange-950/30'}`}>
+              <p className="text-sm font-bold">
+                {classifyResult.is_food
+                  ? `AI detected: ${classifyResult.identified_food}`
+                  : 'AI could not identify food in this image'}
+              </p>
+              {classifyResult.catalog_matches?.length > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Matched: {classifyResult.catalog_matches.map((m) => m.slug).join(', ')}
+                  {' '}&mdash; auto-selected below
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Category filter chips */}
           <div className="flex gap-2 overflow-x-auto pb-1">
