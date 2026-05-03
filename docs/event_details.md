@@ -1,55 +1,99 @@
-# Build With AI: Agentic Premier League
+# Build With AI :: Agentic Premier League
 
 ## Event Overview
-**Date:** May 3, 2026  
-**Venue:** Siyah Arthouse, Saket, New Delhi (Nearest Metro: Saket Yellow Line)  
-**Time:** 2:00 PM - 8:00 PM IST  
-**Theme:** Cricket & AI  
-**Core Technologies:** Gemini API, Antigravity Framework  
+**Date:** 3rd May 2026
+**Time:** 2:00 PM – 8:00 PM
+**Format:** 3-hour build sprint
+**Core Technologies:** Gemini, Antigravity, Agentic Workflows
+
+## About the Event
+Welcome to **Build With AI :: Agentic Premier League**, an action-packed build sprint where you'll develop AI-driven products using Gemini, Antigravity, and agentic workflows.
+
+This is your space to **vibe code freely** using AI tools you prefer — to experiment, iterate, and build fast. Turn your ideas into working prototypes in just 3 hours.
 
 ## Important Links & Resources
-* **Google Cloud Credits:** Claim your $5 Google Credit from the document link (Required for GCP deployments & API calls)
-* **Submission Platform:** Commudle
-* **Social Tags:** `#BWAI-APL-DELHI` (Tag GDG chapters on LinkedIn for visibility)
-
----
-
-## Event Timeline
-
-| Time | Activity | Details |
-| :--- | :--- | :--- |
-| **2:00 PM - 3:00 PM** | Registration & Check-in | Have your entry pass code and valid ID ready. |
-| **3:00 PM - 3:15 PM** | Opening Ceremony | Briefing on problem statements and rules. |
-| **3:15 PM** | **Hackathon Commences** | Start coding! Live cricket screening begins. |
-| **6:00 PM** | **Hard Code Freeze** | Submissions close on Commudle. |
-| **6:45 PM** | Results & Prize Distribution | Top 5 teams announced. |
-| **7:00 PM** | Dinner & Networking | Food, mocktails, and developer networking. |
+* **$5 Google Credit:** https://trygcp.dev/claim/deveco-gdg-34ef524fcc7
+* **Submission Platform (Commudle):** https://www.commudle.com/builds/create?campaign=BWAI-APL-DELHI
+* **Source Document:** https://docs.google.com/document/d/18YjK8UWFmHr3NDsO5p3uxPxq-KcB6_0_z8cDfx4NT9A/edit?tab=t.0
+* **Social Tags:** `#BWAI-APL-DELHI` (Tag **GDG Cloud New Delhi** and **GDG New Delhi** on LinkedIn)
 
 ---
 
 ## Problem Statements
+Choose any **one** of the following:
 
-### Problem Statement 1: Data-Driven Shot Analysis & Statistics
-Build an agentic workflow that ingests live or simulated cricket match data (ball-by-ball updates, pitch conditions) and generates real-time shot analysis, player statistics, and predictive match trajectories. 
+### Problem Statement 1: Cricket Shot & Ball Analysis from Media
+It's impossible to keep track of a match in terms of which shot was played, when it was played, and what kind of ball was delivered to get data analysis. We only get to know the speed of the ball or how many runs were scored and in which direction.
 
-### Problem Statement 2: The Multimodal Commentator
-Develop an application that captures a live camera feed (e.g., pointed at a cricket match screen), uses multimodal AI to analyze the visual action, and generates live, real-time commentary. The generated commentary must be broadcasted to users over a simulated call or web-socket connection.
+**Build an application which, if given a video or a picture, is able to tell/capture all the details and generate statistics out of it.**
 
-### Problem Statement 3: Tactical Strategy Agent
-Create an autonomous agent capable of analyzing team matchups and pitch conditions to provide real-time strategic recommendations.
+### Problem Statement 2: Live Commentary Broadcast
+How about generating live commentary for a match when you point your camera towards it?
 
-### Problem Statement 4: Fan Engagement & Interactive AI
-Build a creative, interactive agent aimed at enhancing the fan experience during a live match. This could range from a highly-biased team supporter bot to an automated fantasy league scout that monitors player momentum.
+Can that live commentary be relayed to more than one device over a call (Bluetooth or anything else) for people who are not sitting in the match but are on a video call?
+
+### Problem Statement 3: Stadium Gate Crowd Advisory
+An application to issue advisories on which gates of the stadium are overcrowded and which gates people should use preferably, with live updates. People can also post, and the organizers can post updates for the cricket match.
+
+### Problem Statement 4: Live Stadium Food Rating
+A live food rating application for the food served or being sold in the stadium during the match.
+
+---
+
+## Build Requirements
+* Use **Gemini** and **Antigravity**
+* Build a working prototype (web / app / agent)
 
 ---
 
 ## Submission Guidelines
 
-1.  **Code Repository:** Ensure your project is pushed to a public GitHub repository. Clean code and a descriptive `README.md` are highly recommended.
-2.  **Platform:** Submit your project link and description via Commudle before the 6:00 PM hard freeze.
-3.  **Social Media (Optional but recommended):** Share your build on LinkedIn using the hashtag `#BWAI-APL-DELHI` and tag the organizing GDG chapters.
+1. **Submit on Commudle:** https://www.commudle.com/builds/create?campaign=BWAI-APL-DELHI
+2. **Post on LinkedIn (Optional):**
+   * Share your project with a brief description
+   * Add your GitHub link in the post
+   * Tag: **GDG Cloud New Delhi**, **GDG New Delhi**
+   * Hashtag: `#BWAI-APL-DELHI`
 
-## Participant Logistics
-* **Power:** Outlets may be heavily utilized. Please rely on your fully charged laptop and bring an extension board if possible.
-* **Food & Beverage:** Coffee and mocktail vouchers will be provided, followed by dinner post-submission.
-* **Swag:** Top 5 teams will win exclusive goodies from the Google DevRel team.
+### Submission Window
+* **Submissions open:** 6:00 PM
+* **Incomplete entries will not be considered**
+
+---
+
+## Evaluation
+Submissions will be evaluated on:
+* **Innovation**
+* **Impact**
+* **Execution**
+
+**5 teams** will be selected as Winners for the day.
+
+---
+
+## Participation Rules
+* **Solo or Duo** participation is allowed
+
+---
+
+## Event Notes
+
+### Live Match Screening
+The live cricket match screening will begin at **2:30 PM** on the projector to keep the IPL energy alive throughout the event.
+
+### Food & Beverage
+Each attendee will receive **2 passes** redeemable for:
+* Coffee
+* Mocktails
+* Food
+
+**Dinner service** begins from **7:00 PM** onwards.
+
+### Swag
+Goodies for attendees include:
+* T-shirts
+* Mugs
+* Caps
+
+### Wrap-up
+Attendees are requested to vacate the venue by **8:00 PM** to ensure smooth wrap-up and venue handover.

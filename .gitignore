@@ -1,0 +1,34 @@
+# Personal scratch notes — not for the repo
+notes/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.key
+service-account*.json
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Local agent/tool state
+.claude/
+.gemini/
+.opencode/
