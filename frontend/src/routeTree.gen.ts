@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppReviewRouteImport } from './routes/_app/review'
 import { Route as AppMyReviewsRouteImport } from './routes/_app/my-reviews'
 import { Route as AppLeaderboardRouteImport } from './routes/_app/leaderboard'
@@ -37,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppReviewRoute = AppReviewRouteImport.update({
   id: '/review',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof AppLeaderboardRoute
   '/my-reviews': typeof AppMyReviewsRoute
   '/review': typeof AppReviewRoute
+  '/settings': typeof AppSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof AppLeaderboardRoute
   '/my-reviews': typeof AppMyReviewsRoute
   '/review': typeof AppReviewRoute
+  '/settings': typeof AppSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/_app/leaderboard': typeof AppLeaderboardRoute
   '/_app/my-reviews': typeof AppMyReviewsRoute
   '/_app/review': typeof AppReviewRoute
+  '/_app/settings': typeof AppSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/my-reviews'
     | '/review'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/my-reviews'
     | '/review'
+    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/_app/leaderboard'
     | '/_app/my-reviews'
     | '/_app/review'
+    | '/_app/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -166,6 +178,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/review': {
       id: '/_app/review'
@@ -211,6 +230,7 @@ interface AppRouteChildren {
   AppLeaderboardRoute: typeof AppLeaderboardRoute
   AppMyReviewsRoute: typeof AppMyReviewsRoute
   AppReviewRoute: typeof AppReviewRoute
+  AppSettingsRoute: typeof AppSettingsRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -219,6 +239,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLeaderboardRoute: AppLeaderboardRoute,
   AppMyReviewsRoute: AppMyReviewsRoute,
   AppReviewRoute: AppReviewRoute,
+  AppSettingsRoute: AppSettingsRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

@@ -117,3 +117,35 @@
     font-family: var(--font-sans);
   }
 }
+
+/* ── Mobile shell: constrain to phone viewport on desktop ── */
+/* Applied via .mobile-shell-active class on the wrapper */
+@layer base {
+  body.mobile-shell-bg {
+    background: #0f0f0f;
+  }
+}
+
+.mobile-shell-active {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+  background: var(--background);
+  box-shadow: 0 0 80px rgba(234, 88, 12, 0.12), 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+/* Notch hint */
+.mobile-shell-active::before {
+  content: '';
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 120px;
+  height: 5px;
+  margin: 0 auto;
+  background: #1c1917;
+  border-radius: 0 0 8px 8px;
+  opacity: 0.2;
+}

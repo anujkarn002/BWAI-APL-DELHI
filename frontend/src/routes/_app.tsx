@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet, Link, useNavigate, useMatches } from '@tanstack/react-router'
 import { useAuthStore } from '@/lib/auth-store'
+import { useAppSettings } from '@/lib/settings-store'
 import { useEffect } from 'react'
-import { Home, PenLine, LayoutGrid, Trophy, LogOut, ClipboardList } from 'lucide-react'
+import { Home, PenLine, LayoutGrid, Trophy, LogOut, ClipboardList, Settings } from 'lucide-react'
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: () => {
@@ -35,6 +36,7 @@ const NAV_ITEMS = [
   { to: '/my-reviews' as const, label: 'Mine', Icon: ClipboardList },
   { to: '/feed' as const, label: 'Feed', Icon: LayoutGrid },
   { to: '/leaderboard' as const, label: 'Board', Icon: Trophy },
+  { to: '/settings' as const, label: 'More', Icon: Settings },
 ]
 
 function AppLayout() {
@@ -43,6 +45,21 @@ function AppLayout() {
   const logout = useAuthStore((s) => s.logout)
   const isValid = useAuthStore((s) => s.isTokenValid)
   const currentPath = matches[matches.length - 1]?.pathname || ''
+  const viewMode = useAppSettings((s) => s.viewMode)
+
+  // Determine if mobile shell should be active
+  const isMobileShell =
+    viewMode === 'mobile' || (viewMode === 'auto' && typeof window !== 'undefined' && window.innerWidth >= 481)
+
+  // Toggle body background for mobile shell
+  useEffect(() => {
+    if (isMobileShell) {
+      document.body.classList.add('mobile-shell-bg')
+    } else {
+      document.body.classList.remove('mobile-shell-bg')
+    }
+    return () => document.body.classList.remove('mobile-shell-bg')
+  }, [isMobileShell])
 
   // Periodic token validity check
   useEffect(() => {
@@ -61,7 +78,7 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className={`min-h-screen bg-background flex flex-col ${isMobileShell ? 'mobile-shell-active' : ''}`}>
       {/* Top bar */}
       <header className="border-b-3 border-border bg-card px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <Link to="/home" className="text-xl font-black tracking-tight">
@@ -86,7 +103,13 @@ function AppLayout() {
       </main>
 
       {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t-3 border-border flex z-50">
+      <nav
+        className={`fixed bottom-0 bg-card border-t-3 border-border flex z-50 ${
+          isMobileShell
+            ? 'left-1/2 -translate-x-1/2 w-full max-w-[430px]'
+            : 'left-0 right-0'
+        }`}
+      >
         {NAV_ITEMS.map((item) => {
           const isActive = currentPath.startsWith(item.to)
           return (
