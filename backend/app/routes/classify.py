@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from ..deps import get_current_user
+from ..ratelimit import rate_limit, classify_image as classify_limit
 from ..services.classifier import classify_image
 
 router = APIRouter()
@@ -35,6 +36,7 @@ class ClassifyResponse(BaseModel):
 async def classify_food(
     body: ClassifyRequest,
     user: dict = Depends(get_current_user),
+    _=Depends(rate_limit(classify_limit)),
 ):
     """Classify a food image and suggest catalog matches."""
     if not body.photoBase64:

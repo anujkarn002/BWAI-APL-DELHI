@@ -10,6 +10,7 @@ from google.cloud.firestore_v1 import Increment
 
 from ..deps import get_current_user
 from ..firestore import get_db
+from ..ratelimit import rate_limit, review_submit, review_edit, read_api
 from ..services.governance import moderate_review
 from ..services.classifier import classify_image
 
@@ -70,6 +71,7 @@ async def submit_review(
     body: ReviewSubmission,
     background_tasks: BackgroundTasks,
     user: dict = Depends(get_current_user),
+    _=Depends(rate_limit(review_submit)),
 ):
     if not body.foodIds:
         raise HTTPException(400, "Must select at least one food")
@@ -148,7 +150,7 @@ async def submit_review(
 # ── User's own reviews ──────────────────────────────────────
 
 @router.get("/mine")
-async def my_reviews(user: dict = Depends(get_current_user)):
+async def my_reviews(user: dict = Depends(get_current_user), _=Depends(rate_limit(read_api))):
     """Return the current user's reviews, newest first."""
     db = get_db()
     # Simple filter — sort client-side to avoid composite index requirement
@@ -185,6 +187,7 @@ async def update_review(
     body: ReviewUpdate,
     background_tasks: BackgroundTasks,
     user: dict = Depends(get_current_user),
+    _=Depends(rate_limit(review_edit)),
 ):
     """Edit ratings/feedback on an existing review. Only the author can edit."""
     if body.overallRating is not None and not (1 <= body.overallRating <= 5):

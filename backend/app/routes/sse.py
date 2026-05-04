@@ -4,12 +4,13 @@ import json
 import logging
 from typing import AsyncGenerator
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from fastapi.responses import StreamingResponse
 import jwt
 
 from ..config import settings
 from ..firestore import get_db
+from ..ratelimit import rate_limit, sse_connect
 
 router = APIRouter()
 log = logging.getLogger("stadiumbite.sse")
@@ -38,7 +39,7 @@ async def leaderboard_stream(user_phone: str) -> AsyncGenerator[str, None]:
 
 
 @router.get("/leaderboard")
-async def sse_leaderboard(token: str = Query(...)):
+async def sse_leaderboard(request: Request, token: str = Query(...), _=Depends(rate_limit(sse_connect))):
     """SSE endpoint. Auth via query param (EventSource doesn't support headers)."""
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])

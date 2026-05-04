@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 
 from ..deps import get_current_user
 from ..firestore import get_db
+from ..ratelimit import rate_limit, read_api
 
 router = APIRouter()
 
@@ -10,7 +11,7 @@ MIN_REVIEWS = 1  # minimum reviews to appear on leaderboard
 
 
 @router.get("")
-async def get_leaderboard(_user: dict = Depends(get_current_user)):
+async def get_leaderboard(_user: dict = Depends(get_current_user), _rl=Depends(rate_limit(read_api))):
     db = get_db()
     foods = []
     for doc in db.collection("foods").where("isActive", "==", True).stream():

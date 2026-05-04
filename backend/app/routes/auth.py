@@ -3,12 +3,13 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 import jwt
 
 from ..config import settings
 from ..firestore import get_db
+from ..ratelimit import rate_limit, auth_otp_request, auth_otp_verify
 
 router = APIRouter()
 log = logging.getLogger("stadiumbite.auth")
@@ -24,7 +25,7 @@ class VerifyOTPBody(BaseModel):
 
 
 @router.post("/request-otp")
-async def request_otp(body: RequestOTPBody):
+async def request_otp(body: RequestOTPBody, _=Depends(rate_limit(auth_otp_request))):
     """Simulate sending an OTP. Logs it to stdout."""
     otp = str(uuid.uuid4().int)[:6]  # random 6-digit
     db = get_db()
@@ -42,7 +43,7 @@ async def request_otp(body: RequestOTPBody):
 
 
 @router.post("/verify-otp")
-async def verify_otp(body: VerifyOTPBody):
+async def verify_otp(body: VerifyOTPBody, _=Depends(rate_limit(auth_otp_verify))):
     """Verify OTP (or accept master OTP) and return JWT."""
     db = get_db()
     is_valid = False

@@ -1,18 +1,50 @@
 from pathlib import Path
 import logging
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from .config import settings
+from .ratelimit import global_limit
 from .routes import auth, foods, reviews, leaderboard, sse, feed, classify, admin
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("stadiumbite")
 
 app = FastAPI(title="StadiumBite API", version="0.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.middleware("http")
+async def global_rate_limit(request: Request, call_next) -> Response:
+    """Global rate limit — applies to all /api/ and /sse/ routes."""
+    path = request.url.path
+    if path.startswith(("/api/", "/sse/")):
+        global_limit.check(request)
+    response = await call_next(request)
+    return response
+
+
+# Limit request body size (2MB max — prevents abuse via huge payloads)
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next) -> Response:
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > 2 * 1024 * 1024:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=413,
+            content={"detail": "Request body too large. Max 2MB."},
+        )
+    return await call_next(request)
 
 app.add_middleware(
     CORSMiddleware,

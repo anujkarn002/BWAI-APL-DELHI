@@ -86,7 +86,7 @@ function AppLayout() {
       </main>
 
       {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t-3 border-border flex z-50">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-card border-t-3 border-border flex z-50">
         {NAV_ITEMS.map((item) => {
           const isActive = currentPath.startsWith(item.to)
           return (

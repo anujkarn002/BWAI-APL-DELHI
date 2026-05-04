@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Query
 
 from ..deps import get_current_user
 from ..firestore import get_db
+from ..ratelimit import rate_limit, read_api
 
 router = APIRouter()
 
@@ -11,6 +12,7 @@ router = APIRouter()
 async def get_feed(
     limit: int = Query(default=20, le=50),
     _user: dict = Depends(get_current_user),
+    _rl=Depends(rate_limit(read_api)),
 ):
     """Return recent reviews, prioritizing ones with photos."""
     db = get_db()
