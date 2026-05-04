@@ -23,9 +23,7 @@ declare module '@tanstack/react-router' {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <div className="mobile-shell">
-        <RouterProvider router={router} />
-      </div>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   </StrictMode>,
 )
